@@ -1,0 +1,2 @@
+# One JSON object per strategy variant evaluated. Used for the deflated Sharpe / reality check (Stage 7).
+{"key": "604c8020d608c6e1", "metrics": {"expectancy_r_1x": -0.050980989512454084, "trades": 3229}, "name": "primary_spec", "params": {"ambiguity": "stop_first", "last_entry_bar": "15:54", "range_minutes": 15, "stop_range_fraction": 1.0, "target_fill": "touch", "target_r": 1.0}, "stage": "stage4", "utc": "2026-10-06T14:23:43+00:00"}

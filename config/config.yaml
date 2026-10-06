@@ -12,6 +12,7 @@ paths:
   processed_dir: data/processed   # cleaned bars + daily table (gitignored)
   output_dir: outputs             # generated reports and figures (gitignored)
   holdout_log: logs/holdout_access.log   # committed on purpose: an audit trail
+  trials_log: logs/trials.jsonl          # every strategy variant evaluated (for multiple-testing correction)
 
 data:
   product: NQ
@@ -37,6 +38,25 @@ signal:
   # The spec only says "flat by flat_time", so the default is the latest bar that still leaves
   # a bar before the exit: a signal whose entry bar would be at/after this is not traded.
   last_entry_bar: "15:54"
+
+execution:
+  # Primary specification = the strategy exactly as defined in the brief. Stage 6 varies these.
+  stop_range_fraction: 1.0     # stop = range edge opposite the trade, i.e. 1.0 = full opposite side; 0.5 = midpoint
+  target_r: 1.0                # target = entry +/- target_r * R (R = initial risk); null = no target
+  # touch   : a limit target fills as soon as the bar's high/low reaches it (optimistic: no queue)
+  # through : needs price to trade one tick BEYOND the target (a common proxy for queue position)
+  target_fill: touch
+  # If one 1-minute bar touches both stop and target we cannot know which came first.
+  # stop_first is the conservative primary assumption; target_first is only used as an optimistic bound.
+  ambiguity: stop_first
+  min_risk_ticks: 1            # skip a trade whose risk (entry fill to stop) is below this
+  costs:
+    commission_per_side_usd: {NQ: 2.00, MNQ: 0.50}   # all-in estimate; replace with your broker's numbers
+    # All-in adverse move per MARKET-type fill (entry, stop, time exit), in ticks. This folds in
+    # crossing the bid/ask spread: there is no quote data, so spread cannot be modelled separately.
+    slippage_ticks: 1.0
+    limit_slippage_ticks: 0.0  # target exits are resting limit orders: no slippage assumed
+    cost_scale: 1.0            # multiplies commission AND slippage (0 = frictionless, 2 = double costs)
 
 contracts:
   # Trade the contract that led RTH volume on the PREVIOUS trading day (known

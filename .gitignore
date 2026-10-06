@@ -230,3 +230,5 @@ outputs/
 
 # The holdout audit trail must be committed (it matches the template's *.log rule otherwise)
 !logs/holdout_access.log
+
+!logs/trials.jsonl

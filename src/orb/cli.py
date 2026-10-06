@@ -30,7 +30,13 @@ def cmd_signals(cfg, use_cache: bool) -> None:
     print(f"report: {build_signal_report(cfg)}")
 
 
-STAGES = {"data": cmd_data, "signals": cmd_signals}
+def cmd_execution(cfg, use_cache: bool) -> None:
+    from orb.reports.execution_report import build_execution_report
+
+    print(f"report: {build_execution_report(cfg)}")
+
+
+STAGES = {"data": cmd_data, "signals": cmd_signals, "execution": cmd_execution}
 
 
 def main(argv: list[str] | None = None) -> None:

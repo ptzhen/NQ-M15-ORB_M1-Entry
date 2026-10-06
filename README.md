@@ -4,8 +4,8 @@ This project tests one simple trading idea as rigorously as possible, with the e
 whether there is a genuine edge, **not** of producing a nice-looking equity curve. A good-looking result
 is treated as suspicious until it survives the tests below.
 
-> **Status: Stage 3 of 8 (signal engine) is complete. There are no profit-and-loss results yet, on purpose.**
-> See [`docs/PLAN.md`](docs/PLAN.md) for the plan, [`docs/stage2_data_quality/`](docs/stage2_data_quality/data_quality_report.md) for the data report and [`docs/stage3_signals/`](docs/stage3_signals/signal_summary.md) for the signal report.
+> **Status: Stage 4 of 8 (execution model) is complete.** Results so far are development-data only (2010-2023); the 2024+ holdout has not been touched.
+> See [`docs/PLAN.md`](docs/PLAN.md) for the plan and the stage reports: [data](docs/stage2_data_quality/data_quality_report.md), [signals](docs/stage3_signals/signal_summary.md), [execution and costs](docs/stage4_execution/execution_report.md).
 
 ## The idea in plain English
 
@@ -44,6 +44,7 @@ pip install -e .
 # put the Databento download's files (the .dbn.zst, condition.json, ...) into data/raw/
 python -m orb data      # parse, validate, classify days, write the data-quality report
 python -m orb signals   # generate signals on development data and write the signal report
+python -m orb execution # simulate fills and costs on development data, write the execution report
 python -m orb run       # every implemented stage in order
 python -m pytest        # unit tests
 ```
@@ -66,13 +67,22 @@ Output lands in `outputs/` (git-ignored). The Stage 2 report is also published i
 * Section 2 explains how the "no lookahead" claim is tested (a second, bar-by-bar implementation, garbage-in-the-future tests, and deliberately injected bugs).
 * Section 6 lists edge cases the execution model must handle.
 
+## How to read the execution report
+
+* **R** is the risk on a trade (entry to stop). A result of +1R means you made as much as you risked. Expectancy is the average R per trade.
+* Section 3 shows the same trades at 0x (no costs), 1x and 2x costs. If the edge only exists at 0x, it is not tradable.
+* Section 5 shows how much the unavoidable 1-minute-bar guesses (stop-first, fill-on-touch) move the answer.
+* The confidence interval shown is deliberately naive and too narrow; Stage 7 replaces it with a bootstrap.
+
 ## Repository layout
 
 ```
 config/config.yaml     every parameter
 src/orb/data/          loading, validation, contracts, calendar, daily classification, holdout guard
 src/orb/signals/       the opening-range breakout signal engine (vectorised + event-driven reference)
-src/orb/execution/     (Stage 4)   src/orb/analysis/ (Stages 5-7)
+src/orb/execution/     fills, stops, targets, commission and slippage (vectorised + bar-by-bar twin)
+src/orb/analysis/      metrics and the trials registry (grows in Stages 5-7)
+logs/trials.jsonl      every strategy variant evaluated (for the multiple-testing correction)
 src/orb/reports/       report and chart generation
 tests/                 unit tests
 logs/holdout_access.log  audit trail of every access to the 2024+ holdout

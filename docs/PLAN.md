@@ -69,3 +69,13 @@ Each stage is committed and pushed, then paused for approval.
   (3,229 development signals). This is effectively a trade-every-day strategy; the 15-minute range is narrow relative to the day.
 * **Known residual lookahead:** the day universe excludes 12 development days for a missing minute later in the session. This is not
   knowable at 09:46 and slightly favours quieter days. Tiny, but disclosed.
+
+## Changes made during Stage 4
+
+* **Spread is folded into slippage.** With no quote data, `slippage_ticks` is the all-in adverse cost per market-type fill
+  (entry, stop, time exit); target limits assume none. 1x = 1 tick and $2.00/side NQ ($0.50 MNQ); cost scale multiplies both.
+* **Levels from the actual fill.** R and the target are computed from the slipped entry fill, as a bracket order placed after the fill would be.
+* **Trials registry started** (`logs/trials.jsonl`, committed). The primary spec is trial #1. Cost scales and fill-ambiguity bounds are
+  scenarios on one variant, not new trials; any change to range length, stop, or target will be a new trial.
+* **Observation (development data, primary spec, no tuning):** negative expectancy even with zero costs (about -0.02R, naive 95% CI
+  includes 0) and about -0.05R at 1x costs. Not interpreted further until Stages 5-7.
