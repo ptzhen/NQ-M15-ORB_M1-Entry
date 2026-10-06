@@ -42,7 +42,13 @@ def cmd_backtest(cfg, use_cache: bool) -> None:
     print(f"report: {build_backtest_report(cfg)}")
 
 
-STAGES = {"data": cmd_data, "signals": cmd_signals, "execution": cmd_execution, "backtest": cmd_backtest}
+def cmd_validation(cfg, use_cache: bool) -> None:
+    from orb.reports.validation_report import build_validation_report
+
+    print(f"report: {build_validation_report(cfg)}")
+
+
+STAGES = {"data": cmd_data, "signals": cmd_signals, "execution": cmd_execution, "backtest": cmd_backtest, "validation": cmd_validation}
 
 
 def main(argv: list[str] | None = None) -> None:

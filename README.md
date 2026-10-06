@@ -4,8 +4,8 @@ This project tests one simple trading idea as rigorously as possible, with the e
 whether there is a genuine edge, **not** of producing a nice-looking equity curve. A good-looking result
 is treated as suspicious until it survives the tests below.
 
-> **Status: Stage 5 of 8 (backtest and trade log) is complete.** Results so far are development-data only (2010-2023); the 2024+ holdout has not been touched.
-> See [`docs/PLAN.md`](docs/PLAN.md) for the plan, [`docs/DECISIONS.md`](docs/DECISIONS.md) for the owner's decisions (incl. *proceed even if results are bad*), and the stage reports: [data](docs/stage2_data_quality/data_quality_report.md), [signals](docs/stage3_signals/signal_summary.md), [execution and costs](docs/stage4_execution/execution_report.md), [backtest](docs/stage5_backtest/backtest_report.md).
+> **Status: Stage 6 of 8 (validation: sensitivity, walk-forward) is complete.** Results so far are development-data only (2010-2023); the 2024+ holdout has not been touched.
+> See [`docs/PLAN.md`](docs/PLAN.md) for the plan, [`docs/DECISIONS.md`](docs/DECISIONS.md) for the owner's decisions (incl. *proceed even if results are bad*), and the stage reports: [data](docs/stage2_data_quality/data_quality_report.md), [signals](docs/stage3_signals/signal_summary.md), [execution and costs](docs/stage4_execution/execution_report.md), [backtest](docs/stage5_backtest/backtest_report.md), [validation](docs/stage6_validation/validation_report.md).
 
 ## The idea in plain English
 
@@ -46,6 +46,7 @@ python -m orb data      # parse, validate, classify days, write the data-quality
 python -m orb signals   # generate signals on development data and write the signal report
 python -m orb execution # simulate fills and costs on development data, write the execution report
 python -m orb backtest  # full backtest on development data: trade log + breakdowns by year/regime/weekday/side
+python -m orb validation # 96-cell parameter grid, in/out-of-sample split and walk-forward (protocol fixed in docs/DECISIONS.md D4)
 python -m orb run       # every implemented stage in order
 python -m pytest        # unit tests
 ```
@@ -81,6 +82,13 @@ Output lands in `outputs/` (git-ignored). The Stage 2 report is also published i
 * Section 4 (by year) shows each year's expectancy with its uncertainty bar. If the bars straddle zero, that year says nothing either way.
 * Sections 5-6 (regime, weekday, side) are descriptive. Any pattern noticed there is a *hypothesis*, logged in `docs/DECISIONS.md`, and must be confirmed out of sample.
 * The trade log itself is `outputs/backtest/trade_log_dev.csv` (not committed: it contains prices from licensed data).
+
+## How to read the validation report
+
+* The **heatmaps** show expectancy for every combination of range length, stop and target. A real effect shows up as a broad coloured *region*, not one bright cell. Compare the net map with the frictionless map to see what costs take.
+* The **selection rule** was written down and committed *before* the sweep ran (`docs/DECISIONS.md`, D4): it averages each cell with its neighbours and sits out if no region is positive after costs. "Sitting out" is a legitimate result.
+* The **walk-forward** test picks parameters using only past years, then trades the next year. Compare like with like: the report shows the rule next to the primary spec over the same years.
+* Many numbers here are *not independent* (all 96 cells share the same days), so no naive p-values are shown. Stage 7 corrects for the number of variants tried.
 
 ## Repository layout
 

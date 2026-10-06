@@ -89,3 +89,17 @@ the multiple-testing-corrected statistics of Stage 7 and on the holdout result i
 
 **Reporting commitments:** show the full grid (not only the best cells), both net and frictionless, the share of cells with positive
 expectancy, and how well in-sample ranking predicts out-of-sample ranking across all 96 cells.
+
+## D5 (2026-10-06): Stage 6 outcome notes and a second post-hoc hypothesis
+
+**Applied as pre-registered (D4), development data only:** the rule sat out on the full development period and on the in-sample window
+(no smoothed region had positive net expectancy), and in 7 of 9 walk-forward folds. Criteria (a) and (c) failed, so **no variant is promoted;
+the primary specification is the only holdout candidate.**
+
+**Weakness noted, not fixed:** criterion (b) passed mechanically on only two active walk-forward folds (2022-2023) with a confidence interval
+including zero. D4 is not amended after seeing results. The strength of evidence is judged by the Stage 7 statistics (bootstrap, deflated Sharpe).
+
+**Second post-hoc hypothesis (to be tested in Stage 7, as for D3):** the frictionless grid shows a cluster of positive cells for *no target + tight stop +
+short range*, mostly consumed by costs. Because "no target" means holding to the close, this may be NQ's 2010-2023 upward drift rather than
+breakout behaviour. Test by splitting long vs short, and by comparing with a same-exposure, same-hold-time benchmark that ignores the breakout.
+Counted against the multiple-testing correction; not a finding.

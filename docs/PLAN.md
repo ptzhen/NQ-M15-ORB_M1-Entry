@@ -88,3 +88,12 @@ Each stage is committed and pushed, then paused for approval.
 * **Trade log is not committed** (it contains licensed market prices); it is rebuilt by `python -m orb backtest`.
 * **Post-hoc hypothesis logged (D3):** by-year results hint at better performance in higher-volatility years. To be tested in Stage 7
   with a pre-declared definition, as a counted trial, and confirmed on the holdout or reported as failed.
+
+## Changes made during Stage 6
+
+* **Protocol pre-registered** (DECISIONS D4, commit 57bc384) before the sweep: 96-cell grid, smoothed selection with a "sit out" option, IS/OOS split,
+  rolling walk-forward, and mechanical promotion criteria.
+* **Outcome (development data):** 5 of 96 cells positive net, 51 of 96 positive frictionless. The rule sat out on the full development period, on the
+  in-sample window and in 7 of 9 walk-forward folds. No variant is promoted; the primary spec is the only holdout candidate.
+* **Weakness noted, not changed:** criterion (b) passed on only 2 active folds (D5). Strength of evidence is for Stage 7 to judge.
+* **Second post-hoc hypothesis logged (D5):** the gross-positive "no target + tight stop" cluster may be market drift; to be tested by long/short split and a benchmark.

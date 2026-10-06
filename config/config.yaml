@@ -84,6 +84,26 @@ regimes:
   - {name: "2022 bear market", start: "2022-01-01", end: "2022-12-31"}
   - {name: "2023 onward",      start: "2023-01-01", end: "2026-12-31"}
 
+validation:
+  # Fixed in advance and committed before any sweep ran: see docs/DECISIONS.md, D4. Do not edit after seeing results
+  # without recording a new decision.
+  grid:                          # every cell is one trial (6 x 4 x 4 = 96)
+    range_minutes: [5, 10, 15, 30, 45, 60]
+    stop_range_fraction: [0.5, 0.75, 1.0, 1.5]
+    target_r: [1.0, 1.5, 2.0, null]   # null = no target
+  is_oos:                        # single split inside the development period
+    is_start: "2010-01-01"
+    is_end: "2018-12-31"
+    oos_start: "2019-01-01"
+    oos_end: "2023-12-31"
+  walk_forward:
+    train_years: 5
+    first_test_year: 2015
+    last_test_year: 2023
+  selection:
+    smoothing_radius: 1          # average each cell with all cells within this many grid steps (per dimension)
+    min_smoothed_expectancy_r: 0.0   # if the best smoothed score is not above this, sit out
+
 splits:
   # Develop and tune on dates <= dev_end only. The holdout is touched exactly once, at the end.
   dev_end: 2023-12-31
