@@ -1,3 +1,4 @@
 # Audit trail: every time strategy code unlocks the 2024-01-01+ holdout, one line is appended.
 # Format (tab separated): UTC timestamp, dataset, partition, stated purpose.
-# Expected final state: exactly one entry, written during the Stage 8 holdout run.
+# Expected final state: one pair of entries (daily, bars_chosen) from the single Stage 8 run, plus entries labelled
+# 'reproduction' if the final stage is re-derived for verification. Anything else is a protocol breach.

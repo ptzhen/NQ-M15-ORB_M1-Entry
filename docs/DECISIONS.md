@@ -155,3 +155,27 @@ Applied exactly as pre-registered (D6):
 **Holdout plan unchanged (D1, D6):** the holdout is run once in Stage 8 on (i) the primary spec, (ii) the primary spec restricted to the high-volatility tercile with the frozen thresholds, and (iii) the
 direction permutation test. These are run even though (ii) and (iii) failed on development data, as declared before the results existed. No variant is added or removed on the strength of what
 development data showed.
+
+## D8 (2026-10-06): final-run procedure and conclusion rules, fixed BEFORE the holdout is touched
+
+**One run.** The holdout (2024-01-01 to 2026-10-01; 2026 is a partial year) is loaded once by `python -m orb final` with `ORB_UNLOCK_HOLDOUT=yes`. A lock file
+(`logs/holdout_final_run.json`) is written on completion; later invocations refuse unless `--reproduce` is passed, which only re-derives the same numbers for verification and
+is logged as such. No decision may be taken from a reproduction. The pipeline was dry-run on **development data only** (2021+ treated as a pseudo-holdout) to remove bugs
+before the real run.
+
+**What is run on the holdout (declared in D1 and D6, unchanged by development results):**
+(i) the primary specification (15-minute range, stop at the opposite side, 1R target, 1x costs, with 0x and 2x cost scenarios on the same trades);
+(ii) the primary specification restricted to the high-prior-volatility tercile, using the frozen thresholds in `logs/frozen_vol_thresholds.json` (hypothesis D3);
+(iii) the direction-label permutation test on the holdout signals (hypothesis D5). Descriptive cuts (by year, side) come from the same single run.
+
+**Statistics:** stationary block bootstrap, 10,000 resamples, mean block 10 trading days, seed from the config, for every interval.
+
+**Conclusion rules (written now):**
+1. Primary spec on the holdout at 1x costs is *negative and distinguishable* if the 95% interval for expectancy lies entirely below 0; *positive and distinguishable* if entirely above 0;
+   otherwise *not distinguishable from zero*.
+2. The overall conclusion is **"evidence of a real, tradable edge"** only if ALL of: (a) the holdout interval is entirely above 0 at 1x costs; (b) the holdout expectancy is still above 0 at 2x costs;
+   (c) the development result did not contradict it, i.e. the development interval at 1x costs does not lie entirely below 0. If any fails the conclusion is **"no edge established"**,
+   and the report says in plain English which condition failed. There is no third, softer category.
+3. Hypothesis D3 is *supported on the holdout* if the high-tercile interval lies entirely above 0 (>= 20 trades required, else "untestable"). Hypothesis D5 is *supported* if the permutation p-value is below 0.05.
+   Three declared tests are run, so a Bonferroni-adjusted level of 0.05/3 is also shown; the rules above are not relaxed or tightened by it.
+4. The report states the outcome of all three tests, including every failure, and does not drop or reorder them.

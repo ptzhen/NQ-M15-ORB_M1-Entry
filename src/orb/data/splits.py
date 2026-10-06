@@ -34,6 +34,17 @@ def _log_access(cfg, what: str, partition: str, purpose: str) -> None:
         fh.write(f"{dt.datetime.now(dt.timezone.utc).isoformat(timespec='seconds')}\t{what}\t{partition}\t{purpose}\n")
 
 
+def _check_unlocked(cfg, partition: str) -> None:
+    """Refuse BEFORE any holdout file is opened: a locked request must never even read the data."""
+    if partition not in {"dev", "holdout", "all"}:
+        raise ValueError(f"partition must be dev|holdout|all, got {partition!r}")
+    if partition != "dev" and os.environ.get(UNLOCK_ENV) != "yes":
+        raise HoldoutLockedError(
+            f"Holdout data (>= {cfg.splits.holdout_start}) is locked. It is run once, at the very end. "
+            f"Set {UNLOCK_ENV}=yes to unlock; the access will be logged."
+        )
+
+
 def _partition(df: pd.DataFrame, cfg, partition: str, date_col: str | None, what: str, purpose: str) -> pd.DataFrame:
     if partition not in {"dev", "holdout", "all"}:
         raise ValueError(f"partition must be dev|holdout|all, got {partition!r}")
@@ -51,10 +62,12 @@ def _partition(df: pd.DataFrame, cfg, partition: str, date_col: str | None, what
 
 
 def load_daily(cfg, partition: str = "dev", purpose: str = "") -> pd.DataFrame:
+    _check_unlocked(cfg, partition)
     df = pd.read_parquet(resolve(cfg, cfg.paths.processed_dir) / "daily.parquet")
     return _partition(df, cfg, partition, None, "daily", purpose)
 
 
 def load_bars_chosen(cfg, partition: str = "dev", purpose: str = "") -> pd.DataFrame:
+    _check_unlocked(cfg, partition)
     df = pd.read_parquet(resolve(cfg, cfg.paths.processed_dir) / "bars_chosen.parquet")
     return _partition(df, cfg, partition, "date", "bars_chosen", purpose)

@@ -13,6 +13,7 @@ paths:
   output_dir: outputs             # generated reports and figures (gitignored)
   holdout_log: logs/holdout_access.log   # committed on purpose: an audit trail
   trials_log: logs/trials.jsonl          # every strategy variant evaluated (for multiple-testing correction)
+  final_lock: logs/holdout_final_run.json   # written when the one-and-only holdout run completes (D8)
 
 data:
   product: NQ

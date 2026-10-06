@@ -42,3 +42,9 @@ def contracts_tbl():
 def xnys_for(dates, early=()):
     idx = pd.DatetimeIndex(pd.to_datetime(list(dates)), name="date")
     return pd.DataFrame({"early_close": [d in set(pd.to_datetime(list(early))) for d in idx]}, index=idx)
+
+
+@pytest.fixture(autouse=True)
+def holdout_locked_in_every_test(monkeypatch):
+    """No test may ever see the holdout, even if the developer's shell has the unlock switch set."""
+    monkeypatch.delenv("ORB_UNLOCK_HOLDOUT", raising=False)
