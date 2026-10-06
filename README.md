@@ -4,8 +4,8 @@ This project tests one simple trading idea as rigorously as possible, with the e
 whether there is a genuine edge, **not** of producing a nice-looking equity curve. A good-looking result
 is treated as suspicious until it survives the tests below.
 
-> **Status: Stage 4 of 8 (execution model) is complete.** Results so far are development-data only (2010-2023); the 2024+ holdout has not been touched.
-> See [`docs/PLAN.md`](docs/PLAN.md) for the plan, [`docs/DECISIONS.md`](docs/DECISIONS.md) for the owner's decisions (incl. *proceed even if results are bad*), and the stage reports: [data](docs/stage2_data_quality/data_quality_report.md), [signals](docs/stage3_signals/signal_summary.md), [execution and costs](docs/stage4_execution/execution_report.md).
+> **Status: Stage 5 of 8 (backtest and trade log) is complete.** Results so far are development-data only (2010-2023); the 2024+ holdout has not been touched.
+> See [`docs/PLAN.md`](docs/PLAN.md) for the plan, [`docs/DECISIONS.md`](docs/DECISIONS.md) for the owner's decisions (incl. *proceed even if results are bad*), and the stage reports: [data](docs/stage2_data_quality/data_quality_report.md), [signals](docs/stage3_signals/signal_summary.md), [execution and costs](docs/stage4_execution/execution_report.md), [backtest](docs/stage5_backtest/backtest_report.md).
 
 ## The idea in plain English
 
@@ -45,6 +45,7 @@ pip install -e .
 python -m orb data      # parse, validate, classify days, write the data-quality report
 python -m orb signals   # generate signals on development data and write the signal report
 python -m orb execution # simulate fills and costs on development data, write the execution report
+python -m orb backtest  # full backtest on development data: trade log + breakdowns by year/regime/weekday/side
 python -m orb run       # every implemented stage in order
 python -m pytest        # unit tests
 ```
@@ -73,6 +74,13 @@ Output lands in `outputs/` (git-ignored). The Stage 2 report is also published i
 * Section 3 shows the same trades at 0x (no costs), 1x and 2x costs. If the edge only exists at 0x, it is not tradable.
 * Section 5 shows how much the unavoidable 1-minute-bar guesses (stop-first, fill-on-touch) move the answer.
 * The confidence interval shown is deliberately naive and too narrow; Stage 7 replaces it with a bootstrap.
+
+## How to read the backtest report
+
+* Section 2 splits the result into gross points, slippage and commission, in both NQ and MNQ dollars, so you can see what costs take.
+* Section 4 (by year) shows each year's expectancy with its uncertainty bar. If the bars straddle zero, that year says nothing either way.
+* Sections 5-6 (regime, weekday, side) are descriptive. Any pattern noticed there is a *hypothesis*, logged in `docs/DECISIONS.md`, and must be confirmed out of sample.
+* The trade log itself is `outputs/backtest/trade_log_dev.csv` (not committed: it contains prices from licensed data).
 
 ## Repository layout
 

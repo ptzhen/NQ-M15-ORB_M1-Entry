@@ -74,6 +74,16 @@ filters:
   max_missing_range_bars: 0      # minutes with no trades allowed inside the opening range
   max_missing_window_bars: 0     # ... and in the rest of the window to flat_time
 
+regimes:
+  # The brief's regimes. The brief does not name 2021, so it gets its own bucket: this makes every date
+  # fall in exactly one regime (checked by a test). Regime tables only ever show data that the caller is
+  # allowed to see: until the final holdout run, "2023 onward" therefore contains 2023 alone.
+  - {name: "2010s low-vol",    start: "2010-01-01", end: "2019-12-31"}
+  - {name: "2020 COVID",       start: "2020-01-01", end: "2020-12-31"}
+  - {name: "2021 post-COVID",  start: "2021-01-01", end: "2021-12-31"}
+  - {name: "2022 bear market", start: "2022-01-01", end: "2022-12-31"}
+  - {name: "2023 onward",      start: "2023-01-01", end: "2026-12-31"}
+
 splits:
   # Develop and tune on dates <= dev_end only. The holdout is touched exactly once, at the end.
   dev_end: 2023-12-31

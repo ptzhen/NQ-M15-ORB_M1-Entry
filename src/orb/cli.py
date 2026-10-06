@@ -36,7 +36,13 @@ def cmd_execution(cfg, use_cache: bool) -> None:
     print(f"report: {build_execution_report(cfg)}")
 
 
-STAGES = {"data": cmd_data, "signals": cmd_signals, "execution": cmd_execution}
+def cmd_backtest(cfg, use_cache: bool) -> None:
+    from orb.reports.backtest_report import build_backtest_report
+
+    print(f"report: {build_backtest_report(cfg)}")
+
+
+STAGES = {"data": cmd_data, "signals": cmd_signals, "execution": cmd_execution, "backtest": cmd_backtest}
 
 
 def main(argv: list[str] | None = None) -> None:

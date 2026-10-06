@@ -39,3 +39,16 @@ Knowing that "the textbook 15-minute NQ ORB has no edge after costs" is itself t
 * Vendor-degraded days excluded; roll days excluded by default with an in/out comparison in Stage 6.
 * After each stage: commit with a clear message and push to https://github.com/ptzhen/trading-research-work.
 * After each stage: summarise what was done, assumptions, and what could invalidate the result; wait for approval.
+
+## D3 (2026-10-06): post-hoc observations are hypotheses, logged when they are made
+
+**Observation (Stage 5, development data, primary spec):** by-year expectancy is clearly negative in 2015-2017 and
+around zero / slightly positive in 2019 and 2021-2023.
+
+**Status:** hypothesis only, formed after seeing the results. Candidate explanation: the strategy does relatively better in
+higher-volatility regimes. **Not** evidence of an edge.
+
+**How it will be tested:** (1) define "volatility regime" in advance from information known before the open (e.g. prior-day
+range or trailing realised volatility, thresholds set by terciles on the development period, not tuned to the P&L), (2) count it as
+a trial in `logs/trials.jsonl`, (3) apply the multiple-testing correction, (4) check it once on the holdout. If it is not
+confirmed out of sample it is reported as a failed hypothesis.

@@ -79,3 +79,12 @@ Each stage is committed and pushed, then paused for approval.
   scenarios on one variant, not new trials; any change to range length, stop, or target will be a new trial.
 * **Observation (development data, primary spec, no tuning):** negative expectancy even with zero costs (about -0.02R, naive 95% CI
   includes 0) and about -0.05R at 1x costs. Not interpreted further until Stages 5-7.
+
+## Changes made during Stage 5
+
+* **Regimes added to the config** (`regimes:`): 2010s low-vol, 2020 COVID, 2021 post-COVID (not in the brief; added so every date has
+  exactly one regime), 2022 bear market, 2023 onward. A test enforces that regimes neither overlap nor leave gaps.
+* **`run_backtest(cfg, partition, orb_overrides=..., **exec_overrides)`** is the single entry point later stages reuse.
+* **Trade log is not committed** (it contains licensed market prices); it is rebuilt by `python -m orb backtest`.
+* **Post-hoc hypothesis logged (D3):** by-year results hint at better performance in higher-volatility years. To be tested in Stage 7
+  with a pre-declared definition, as a counted trial, and confirmed on the holdout or reported as failed.
