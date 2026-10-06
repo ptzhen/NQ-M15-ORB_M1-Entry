@@ -103,3 +103,39 @@ including zero. D4 is not amended after seeing results. The strength of evidence
 short range*, mostly consumed by costs. Because "no target" means holding to the close, this may be NQ's 2010-2023 upward drift rather than
 breakout behaviour. Test by splitting long vs short, and by comparing with a same-exposure, same-hold-time benchmark that ignores the breakout.
 Counted against the multiple-testing correction; not a finding.
+
+## D6 (2026-10-06): Stage 7 robustness protocol, fixed BEFORE any Stage 7 result exists
+
+Written and committed before the bootstrap, the volatility-regime test, the direction test or the multiple-testing corrections were run.
+
+**1. Bootstrap (primary specification, 1x costs, development data).** Stationary bootstrap (Politis-Romano) of the date-ordered series, mean block length
+10 trading days, 10,000 resamples, seed from the config. It respects clustering by regime, unlike the naive intervals of earlier stages. Statistics:
+expectancy (R), win rate, profit factor, annualised Sharpe and Sortino of the daily return on notional (days without a trade = 0; sqrt(252)).
+A plain i.i.d. bootstrap is shown beside it only to show how much narrower it is.
+
+**2. Monte Carlo of trade order.** 10,000 random permutations of the trade sequence; distribution of maximum drawdown versus the realised one.
+An observed drawdown far beyond the shuffled distribution indicates losses cluster in time (a regime effect).
+
+**3. Volatility regime (tests hypothesis D3).** Measure, known before the open: the mean of (RTH high - RTH low) / RTH close over the 20 trading days **before** the
+trade date. Terciles are cut with the 1/3 and 2/3 quantiles of that measure over development-period trade days, then **frozen** (the same numeric thresholds are
+used for any later data). The hypothesis, stated before testing: *the primary spec has positive net expectancy in the high-volatility tercile.* Reported with block-bootstrap
+intervals for each tercile and for the high-minus-low difference. It is one additional trial.
+
+**4. Is the breakout direction informative? (tests hypothesis D5).** For every primary-spec signal day, take the gross return in basis points of price from the entry
+price to the 15:55 open in the signal's direction (hold-to-close, no stop, no target, no costs). Permutation test: randomly reassign the direction labels across signal
+days (keeping the number of longs and shorts), 20,000 times; one-sided p-value for the observed mean. This removes market drift (shuffled labels share it) and isolates whether
+the breakout direction carries information. Also reported, descriptively: the long/short split of the no-target cluster's best cell and an always-long benchmark with the same entry
+times. It is one additional trial.
+
+**5. Multiple-testing corrections** on the 96 grid cells at 1x costs, using daily returns on notional:
+* **Deflated Sharpe ratio** (Bailey and Lopez de Prado) for the best-Sharpe cell and for the primary spec, with N = the number of trials in the registry at the time of
+  computing, the variance of Sharpe ratios across the 96 cells, and the skewness/kurtosis of each cell's own returns.
+* **White's Reality Check**: stationary bootstrap (mean block 10 days, 2,000 resamples) of the maximum over the 96 cells of sqrt(T) x mean daily return, against the null that no cell has positive expected return.
+
+**Interpretation thresholds, fixed now.** A result is called *distinguishable from noise after correction* only if DSR >= 0.95 **and** the Reality Check p-value < 0.05 for the cell
+in question. Otherwise it is *not distinguishable*. A hypothesis (D3 or D5) is called *supported on development data* only if its one-sided p-value is < 0.05 (4) or the high-tercile lower
+confidence bound is above zero (3); support on development data earns it a holdout test but is not a claim of edge.
+
+**Holdout plan, declared now regardless of how development looks (D1):** the holdout is run once in Stage 8 on (i) the primary specification, (ii) the primary specification restricted to the high-volatility tercile
+using the frozen thresholds (hypothesis D3), and (iii) the direction permutation test (hypothesis D5) on the holdout signals. No other variant is promoted (Stage 6 promoted none). The
+final conclusion states the outcome of all three, including failures.
