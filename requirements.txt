@@ -1,0 +1,13 @@
+# Pinned to the versions the results in this repo were produced with.
+# Python 3.12. Note pandas 3.x (string dtype and copy-on-write are the defaults).
+databento==0.87.0
+databento-dbn==0.70.0
+exchange_calendars==4.13.2
+matplotlib==3.11.2
+numpy==2.5.3
+pandas==3.0.6
+pyarrow==25.0.1
+PyYAML==6.0.2
+scipy==1.16.1
+zstandard==0.25.0
+pytest==9.1.1

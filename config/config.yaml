@@ -1,0 +1,52 @@
+# Single source of truth for every parameter in the project.
+# Sections are added as each stage is built; nothing is hard-coded elsewhere.
+
+seed: 20261006            # fixed seed for anything stochastic (bootstrap, Monte Carlo)
+
+paths:
+  raw_file: data/raw/glbx-mdp3-20100606-20261001.ohlcv-1m.dbn.zst
+  # Verified on load so a silently different download can never produce different results.
+  condition_file: data/raw/condition.json   # Databento's own per-day quality ledger
+  raw_sha256: 779a2fb7815421da4adda936f0e62196dde3ce7c38c4fe3940c8a008099cd09f
+  interim_dir: data/interim       # cache of the parsed NQ outrights (gitignored)
+  processed_dir: data/processed   # cleaned bars + daily table (gitignored)
+  output_dir: outputs             # generated reports and figures (gitignored)
+  holdout_log: logs/holdout_access.log   # committed on purpose: an audit trail
+
+data:
+  product: NQ
+  # Outright contracts only, e.g. NQH4. Calendar spreads (NQM0-NQU0) and other
+  # products in the same file (MGC) are dropped. Quarterly months only for NQ.
+  outright_regex: '^NQ[FGHJKMNQUVXZ]\d$'
+  expected_month_codes: HMUZ
+  tick_size: 0.25
+  point_value_usd: {NQ: 20.0, MNQ: 2.0}
+
+session:
+  timezone: America/New_York
+  cash_open: "09:30"
+  cash_close: "16:00"
+  flat_time: "15:55"        # every position is closed at the open of this bar
+  range_minutes: 15         # opening range = first N one-minute bars
+  calendar: XNYS            # source of truth for holidays and half-days
+
+contracts:
+  # Trade the contract that led RTH volume on the PREVIOUS trading day (known
+  # before the open, so no lookahead). A day is a roll day if that choice changed
+  # or if the leader's share of RTH volume on the previous day was below this.
+  roll_leader_min_share: 0.80
+
+filters:
+  # Which flagged days are removed from the tradable universe. Flags are always
+  # computed and reported regardless of these switches.
+  exclude_cash_closed: true      # NYSE closed but CME traded a short session
+  exclude_early_close: true      # NYSE half-days (13:00 close)
+  exclude_roll_days: true
+  exclude_vendor_degraded: true  # days Databento itself marks 'degraded' in condition.json
+  max_missing_range_bars: 0      # minutes with no trades allowed inside the opening range
+  max_missing_window_bars: 0     # ... and in the rest of the window to flat_time
+
+splits:
+  # Develop and tune on dates <= dev_end only. The holdout is touched exactly once, at the end.
+  dev_end: 2023-12-31
+  holdout_start: 2024-01-01

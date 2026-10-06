@@ -50,3 +50,13 @@ been cross-checked against an exchange calendar.
 2. Data: loader, validation, data-quality report. 3. Signal engine plus no-lookahead tests. 4. Execution model.
 5. Backtest and trade log. 6. Validation (IS/OOS, walk-forward, heatmaps). 7. Robustness. 8. Final report.
 Each stage is committed and pushed, then paused for approval.
+
+## Changes made during Stage 2 (after plan approval)
+
+* **Vendor quality ledger.** The Databento download includes `condition.json` marking 32 dates `degraded`. This was not
+  in the original plan. It explains 5 of the 6 NYSE sessions that have no data at all in 2014, so days it flags are now
+  excluded by default (`filters.exclude_vendor_degraded`).
+* **Calendar check.** NYSE calendar (`exchange_calendars`) agrees exactly with the bars about short sessions (128/128).
+* **Contract count.** 71 contracts (not 40): the 40 symbols collide across decades, so everything is keyed on `instrument_id`.
+* **Known limitation.** Abrupt-flip roll days (volume flips to the next contract on the same day, after the old one held
+  >= 80% the day before) cannot be detected in advance and are not excluded. Stage 6 reruns with rolls in/out.
