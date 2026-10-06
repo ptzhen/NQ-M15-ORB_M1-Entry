@@ -52,3 +52,40 @@ higher-volatility regimes. **Not** evidence of an edge.
 range or trailing realised volatility, thresholds set by terciles on the development period, not tuned to the P&L), (2) count it as
 a trial in `logs/trials.jsonl`, (3) apply the multiple-testing correction, (4) check it once on the holdout. If it is not
 confirmed out of sample it is reported as a failed hypothesis.
+
+## D4 (2026-10-06): Stage 6 protocol, fixed BEFORE any sweep is run
+
+Written and committed before the parameter sweep, walk-forward or in/out-of-sample results exist. Anything below that is later
+changed must be recorded as a new decision with the reason, and the original stays visible in git history.
+
+**Search space (every cell is one trial, 96 in total; costs at 1x; target fill = touch; ambiguity = stop-first):**
+
+* range length (minutes): 5, 10, 15, 30, 45, 60
+* stop (fraction of range width from the breakout side's opposite edge; 1.0 = opposite side, 0.5 = midpoint): 0.5, 0.75, 1.0, 1.5
+* target: 1R, 1.5R, 2R, none
+
+The primary specification (15 min, 1.0, 1R) is one of the 96 and keeps its existing trial identity (no double counting).
+
+**Selection rule (the same rule everywhere it is used).** Score each cell by its net expectancy in R on the training window, then
+**smooth** that score over the cell and its immediate neighbours in the grid (average over all cells within one grid step in each of the
+three dimensions, edges use the neighbours that exist). Pick the cell with the highest smoothed score. This prefers a broad
+stable region over an isolated peak. **If the best smoothed score is not above zero, no variant is selected and the strategy sits out**
+(zero trades) for that window. The single best raw cell is never used for selection; it is only shown for illustration.
+
+**In-sample / out-of-sample split (within the development period):** train 2010-06 to 2018-12, test 2019-01 to 2023-12.
+
+**Walk-forward:** rolling windows, 5 calendar years of training and the next calendar year as test, test years 2015 to 2023 (nine folds;
+the first fold's training window is the 4.6 years from 2010-06). Selection happens inside each training window only. The stitched
+out-of-sample trades are the walk-forward result. Comparators: always trading the primary spec, and the in-hindsight best cell
+(shown only to quantify how optimistic in-sample selection is).
+
+**Promotion to the holdout.** The primary specification is **always** run on the holdout (D1). A rule-selected variant is *additionally*
+run on the holdout only if **all** hold: (a) the rule selects a cell on the full development period (smoothed score above zero at 1x costs),
+(b) the stitched walk-forward out-of-sample net expectancy at 1x costs is above zero, and (c) the selected cell's net expectancy on the single
+out-of-sample window is above zero. Passing these only earns a place on the holdout. It is **not** a claim of edge: the conclusion rests on
+the multiple-testing-corrected statistics of Stage 7 and on the holdout result itself.
+
+**Scenario analyses (not trials, same variant):** roll days included vs excluded; costs at 0x/1x/2x.
+
+**Reporting commitments:** show the full grid (not only the best cells), both net and frictionless, the share of cells with positive
+expectancy, and how well in-sample ranking predicts out-of-sample ranking across all 96 cells.
