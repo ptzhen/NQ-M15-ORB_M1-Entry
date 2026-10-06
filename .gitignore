@@ -218,3 +218,12 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# --- Project-specific ---
+# Licensed market data and derived data files: never commit (Databento terms, and 180MB+)
+data/raw/
+data/interim/
+data/processed/
+
+# Generated outputs are reproducible from one command; keep the repo source-only
+outputs/
