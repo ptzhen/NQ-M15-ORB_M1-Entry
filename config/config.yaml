@@ -104,6 +104,18 @@ validation:
     smoothing_radius: 1          # average each cell with all cells within this many grid steps (per dimension)
     min_smoothed_expectancy_r: 0.0   # if the best smoothed score is not above this, sit out
 
+robustness:
+  # Fixed in advance and committed before any Stage 7 result existed: docs/DECISIONS.md, D6.
+  bootstrap: {resamples: 10000, mean_block_days: 10}
+  trade_order_permutations: 10000
+  direction_permutations: 20000
+  reality_check: {resamples: 2000, mean_block_days: 10}
+  volatility:
+    lookback_days: 20            # mean (RTH high - low)/close over this many days BEFORE the trade date
+    # Terciles are cut from development-period trade days only, then frozen. Computed at run time from the
+    # development partition (never from the holdout); the numbers are printed in the report.
+    quantiles: [0.3333333333, 0.6666666667]
+
 splits:
   # Develop and tune on dates <= dev_end only. The holdout is touched exactly once, at the end.
   dev_end: 2023-12-31

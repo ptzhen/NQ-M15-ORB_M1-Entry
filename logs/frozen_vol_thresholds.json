@@ -1,0 +1,7 @@
+{
+  "measure": "mean (RTH high - low)/close over the 20 trading days before the trade date",
+  "low_mid_threshold": 0.010310520332536568,
+  "mid_high_threshold": 0.014348366568790604,
+  "computed_on": "development trade days 2010-06-08 to 2023-12-29 (n=3212)",
+  "frozen_by": "Stage 7 / D6; reuse these exact numbers on any later data"
+}

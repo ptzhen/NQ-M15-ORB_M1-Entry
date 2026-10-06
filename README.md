@@ -4,8 +4,8 @@ This project tests one simple trading idea as rigorously as possible, with the e
 whether there is a genuine edge, **not** of producing a nice-looking equity curve. A good-looking result
 is treated as suspicious until it survives the tests below.
 
-> **Status: Stage 6 of 8 (validation: sensitivity, walk-forward) is complete.** Results so far are development-data only (2010-2023); the 2024+ holdout has not been touched.
-> See [`docs/PLAN.md`](docs/PLAN.md) for the plan, [`docs/DECISIONS.md`](docs/DECISIONS.md) for the owner's decisions (incl. *proceed even if results are bad*), and the stage reports: [data](docs/stage2_data_quality/data_quality_report.md), [signals](docs/stage3_signals/signal_summary.md), [execution and costs](docs/stage4_execution/execution_report.md), [backtest](docs/stage5_backtest/backtest_report.md), [validation](docs/stage6_validation/validation_report.md).
+> **Status: Stage 7 of 8 (robustness and multiple-testing) is complete.** Results so far are development-data only (2010-2023); the 2024+ holdout has not been touched.
+> See [`docs/PLAN.md`](docs/PLAN.md) for the plan, [`docs/DECISIONS.md`](docs/DECISIONS.md) for the owner's decisions (incl. *proceed even if results are bad*), and the stage reports: [data](docs/stage2_data_quality/data_quality_report.md), [signals](docs/stage3_signals/signal_summary.md), [execution and costs](docs/stage4_execution/execution_report.md), [backtest](docs/stage5_backtest/backtest_report.md), [validation](docs/stage6_validation/validation_report.md), [robustness](docs/stage7_robustness/robustness_report.md).
 
 ## The idea in plain English
 
@@ -47,6 +47,7 @@ python -m orb signals   # generate signals on development data and write the sig
 python -m orb execution # simulate fills and costs on development data, write the execution report
 python -m orb backtest  # full backtest on development data: trade log + breakdowns by year/regime/weekday/side
 python -m orb validation # 96-cell parameter grid, in/out-of-sample split and walk-forward (protocol fixed in docs/DECISIONS.md D4)
+python -m orb robustness # bootstrap, Monte Carlo, volatility-regime and direction tests, deflated Sharpe, reality check (docs/DECISIONS.md D6)
 python -m orb run       # every implemented stage in order
 python -m pytest        # unit tests
 ```
@@ -89,6 +90,14 @@ Output lands in `outputs/` (git-ignored). The Stage 2 report is also published i
 * The **selection rule** was written down and committed *before* the sweep ran (`docs/DECISIONS.md`, D4): it averages each cell with its neighbours and sits out if no region is positive after costs. "Sitting out" is a legitimate result.
 * The **walk-forward** test picks parameters using only past years, then trades the next year. Compare like with like: the report shows the rule next to the primary spec over the same years.
 * Many numbers here are *not independent* (all 96 cells share the same days), so no naive p-values are shown. Stage 7 corrects for the number of variants tried.
+
+## How to read the robustness report
+
+* **Bootstrap intervals** show how much a number would move if history had unfolded slightly differently. If the interval for expectancy excludes zero, the result is not luck (here, in the negative direction).
+* **Monte Carlo of trade order** asks whether the drawdown is just bad sequencing of the same trades.
+* The **forest plot** shows every slice with its interval; a slice whose bar crosses the vertical zero line says nothing either way.
+* **Deflated Sharpe and the Reality Check** answer: "if I had tried this many variants of a strategy with no edge, how good would the best look by luck alone?" A result only counts as distinguishable from noise if it beats that bar.
+* Two ideas formed *after* seeing earlier results (volatility regime, and "is it just drift?") were pre-registered and tested here; they did not hold up on development data and will each get exactly one holdout test.
 
 ## Repository layout
 

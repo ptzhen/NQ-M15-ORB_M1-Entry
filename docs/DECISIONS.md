@@ -139,3 +139,19 @@ confidence bound is above zero (3); support on development data earns it a holdo
 **Holdout plan, declared now regardless of how development looks (D1):** the holdout is run once in Stage 8 on (i) the primary specification, (ii) the primary specification restricted to the high-volatility tercile
 using the frozen thresholds (hypothesis D3), and (iii) the direction permutation test (hypothesis D5) on the holdout signals. No other variant is promoted (Stage 6 promoted none). The
 final conclusion states the outcome of all three, including failures.
+
+## D7 (2026-10-06): Stage 7 outcomes (development data) and confirmation that the holdout plan is unchanged
+
+Applied exactly as pre-registered (D6):
+
+* **Primary spec, 1x costs:** expectancy -0.051 R, 95% block-bootstrap interval -0.083 to -0.019 (excludes zero on the negative side). Frictionless: -0.020 R, interval -0.051 to +0.011.
+  Block and i.i.d. intervals have almost the same width (ratio 0.98): little serial dependence trade to trade.
+* **D3 (volatility regime): NOT supported on development data.** Low / mid / high prior-volatility terciles: -0.063 / -0.032 / -0.062 R; high-minus-low difference -0.000 R
+  (interval -0.081 to +0.082). Thresholds frozen in `logs/frozen_vol_thresholds.json`.
+* **D5 (breakout direction vs drift): NOT supported on development data.** Hold-to-close return in the signal direction -0.77 bps vs +0.08 +/- 1.60 under shuffled labels (p = 0.703);
+  the market drifted +2.51 bps from entry to the close regardless of direction.
+* **Multiple testing:** best of 96 cells has a deflated Sharpe of 0.013 and White's Reality Check p = 0.679: not distinguishable from noise. The primary spec is not distinguishable either (its Sharpe is negative).
+
+**Holdout plan unchanged (D1, D6):** the holdout is run once in Stage 8 on (i) the primary spec, (ii) the primary spec restricted to the high-volatility tercile with the frozen thresholds, and (iii) the
+direction permutation test. These are run even though (ii) and (iii) failed on development data, as declared before the results existed. No variant is added or removed on the strength of what
+development data showed.

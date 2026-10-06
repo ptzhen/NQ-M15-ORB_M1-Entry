@@ -97,3 +97,11 @@ Each stage is committed and pushed, then paused for approval.
   in-sample window and in 7 of 9 walk-forward folds. No variant is promoted; the primary spec is the only holdout candidate.
 * **Weakness noted, not changed:** criterion (b) passed on only 2 active folds (D5). Strength of evidence is for Stage 7 to judge.
 * **Second post-hoc hypothesis logged (D5):** the gross-positive "no target + tight stop" cluster may be market drift; to be tested by long/short split and a benchmark.
+
+## Changes made during Stage 7
+
+* **Protocol pre-registered** (DECISIONS D6, commit 7ad355d) before any Stage 7 result: stationary bootstrap, trade-order Monte Carlo, a frozen volatility-tercile definition,
+  a direction-label permutation test, deflated Sharpe and White's Reality Check, interpretation thresholds, and the holdout plan.
+* **Outcome (development data):** primary spec interval excludes zero on the negative side; D3 and D5 not supported; no cell distinguishable from noise (DSR 0.013, RC p = 0.679). See D7.
+* **New committed artefact:** `logs/frozen_vol_thresholds.json`, the volatility cut points computed from development data only and reused unchanged on the holdout.
+* **Trials registry:** 98 entries (96 grid cells + 2 hypotheses).

@@ -135,6 +135,9 @@ def test_trial_registry_counts_each_grid_cell_exactly_once(cfg):
     path = resolve(cfg, cfg.paths.trials_log)
     recs = [json.loads(l) for l in path.read_text(encoding="utf-8").splitlines() if l and not l.startswith("#")]
     keys = [r["key"] for r in recs]
-    assert len(keys) == len(set(keys)) == 96                                   # primary counted once, no duplicates
-    combos = {(r["params"]["range_minutes"], r["params"]["stop_range_fraction"], r["params"]["target_r"]) for r in recs}
+    assert len(keys) == len(set(keys))                                          # no duplicates anywhere
+    grid_recs = [r for r in recs if r["stage"] in ("stage4", "stage6")]
+    assert len(grid_recs) == 96                                                 # primary counted once + 95 grid cells
+    combos = {(r["params"]["range_minutes"], r["params"]["stop_range_fraction"], r["params"]["target_r"]) for r in grid_recs}
     assert combos == set(grid_from_cfg(cfg).cells)                              # exactly the pre-registered grid
+    assert {r["name"] for r in recs if r["stage"] == "stage7"} <= {"hypothesis_vol_high_tercile", "hypothesis_breakout_direction"}
