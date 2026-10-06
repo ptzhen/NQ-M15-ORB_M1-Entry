@@ -30,6 +30,14 @@ session:
   range_minutes: 15         # opening range = first N one-minute bars
   calendar: XNYS            # source of truth for holidays and half-days
 
+signal:
+  # Breakout = a 1-minute bar CLOSES strictly beyond the opening range (a close equal to the
+  # range edge is not a breakout). The first such bar after the range completes is the signal;
+  # entry is at the NEXT bar's open. Only one signal per day.
+  # The spec only says "flat by flat_time", so the default is the latest bar that still leaves
+  # a bar before the exit: a signal whose entry bar would be at/after this is not traded.
+  last_entry_bar: "15:54"
+
 contracts:
   # Trade the contract that led RTH volume on the PREVIOUS trading day (known
   # before the open, so no lookahead). A day is a roll day if that choice changed

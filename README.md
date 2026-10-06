@@ -4,8 +4,8 @@ This project tests one simple trading idea as rigorously as possible, with the e
 whether there is a genuine edge, **not** of producing a nice-looking equity curve. A good-looking result
 is treated as suspicious until it survives the tests below.
 
-> **Status: Stage 2 of 8 (data) is complete. There are no strategy results yet.**
-> See [`docs/PLAN.md`](docs/PLAN.md) for the full plan and [`docs/stage2_data_quality/`](docs/stage2_data_quality/data_quality_report.md) for the current report.
+> **Status: Stage 3 of 8 (signal engine) is complete. There are no profit-and-loss results yet, on purpose.**
+> See [`docs/PLAN.md`](docs/PLAN.md) for the plan, [`docs/stage2_data_quality/`](docs/stage2_data_quality/data_quality_report.md) for the data report and [`docs/stage3_signals/`](docs/stage3_signals/signal_summary.md) for the signal report.
 
 ## The idea in plain English
 
@@ -43,7 +43,8 @@ pip install -r requirements.txt
 pip install -e .
 # put the Databento download's files (the .dbn.zst, condition.json, ...) into data/raw/
 python -m orb data      # parse, validate, classify days, write the data-quality report
-python -m orb run       # every implemented stage in order (currently the same as `data`)
+python -m orb signals   # generate signals on development data and write the signal report
+python -m orb run       # every implemented stage in order
 python -m pytest        # unit tests
 ```
 
@@ -59,12 +60,19 @@ Output lands in `outputs/` (git-ignored). The Stage 2 report is also published i
 * **Section 5 (usable days):** a waterfall from all days to tradable days, with the reason for every removal.
 * **Section 6-7:** the vendor's own quality ledger, and a cross-check of the NYSE holiday calendar against what the bars show.
 
+## How to read the signal report
+
+* It is descriptive only: how often signals fire, when, how wide the range is, and how much risk each trade carries. **No profit is computed at this stage.**
+* Section 2 explains how the "no lookahead" claim is tested (a second, bar-by-bar implementation, garbage-in-the-future tests, and deliberately injected bugs).
+* Section 6 lists edge cases the execution model must handle.
+
 ## Repository layout
 
 ```
 config/config.yaml     every parameter
 src/orb/data/          loading, validation, contracts, calendar, daily classification, holdout guard
-src/orb/signals/       (Stage 3)  execution/ (Stage 4)  analysis/ (Stages 5-7)
+src/orb/signals/       the opening-range breakout signal engine (vectorised + event-driven reference)
+src/orb/execution/     (Stage 4)   src/orb/analysis/ (Stages 5-7)
 src/orb/reports/       report and chart generation
 tests/                 unit tests
 logs/holdout_access.log  audit trail of every access to the 2024+ holdout

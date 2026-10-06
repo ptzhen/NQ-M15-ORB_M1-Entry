@@ -60,3 +60,12 @@ Each stage is committed and pushed, then paused for approval.
 * **Contract count.** 71 contracts (not 40): the 40 symbols collide across decades, so everything is keyed on `instrument_id`.
 * **Known limitation.** Abrupt-flip roll days (volume flips to the next contract on the same day, after the old one held
   >= 80% the day before) cannot be detected in advance and are not excluded. Stage 6 reruns with rolls in/out.
+
+## Changes made during Stage 3
+
+* **New parameter `signal.last_entry_bar` (default 15:54).** The spec only says "flat by 15:55". A signal needs an entry bar before
+  the exit bar, so 15:54 is the latest permitted entry bar; later signals are not traded. Exposed for sensitivity testing.
+* **Finding:** with a 15-minute range, 99.8% of development days produce a signal and 70% fire before 10:00 ET
+  (3,229 development signals). This is effectively a trade-every-day strategy; the 15-minute range is narrow relative to the day.
+* **Known residual lookahead:** the day universe excludes 12 development days for a missing minute later in the session. This is not
+  knowable at 09:46 and slightly favours quieter days. Tiny, but disclosed.
