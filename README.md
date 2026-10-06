@@ -5,7 +5,7 @@ whether there is a genuine edge, **not** of producing a nice-looking equity curv
 is treated as suspicious until it survives the tests below.
 
 > **Status: Stage 4 of 8 (execution model) is complete.** Results so far are development-data only (2010-2023); the 2024+ holdout has not been touched.
-> See [`docs/PLAN.md`](docs/PLAN.md) for the plan and the stage reports: [data](docs/stage2_data_quality/data_quality_report.md), [signals](docs/stage3_signals/signal_summary.md), [execution and costs](docs/stage4_execution/execution_report.md).
+> See [`docs/PLAN.md`](docs/PLAN.md) for the plan, [`docs/DECISIONS.md`](docs/DECISIONS.md) for the owner's decisions (incl. *proceed even if results are bad*), and the stage reports: [data](docs/stage2_data_quality/data_quality_report.md), [signals](docs/stage3_signals/signal_summary.md), [execution and costs](docs/stage4_execution/execution_report.md).
 
 ## The idea in plain English
 
