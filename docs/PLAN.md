@@ -105,3 +105,9 @@ Each stage is committed and pushed, then paused for approval.
 * **Outcome (development data):** primary spec interval excludes zero on the negative side; D3 and D5 not supported; no cell distinguishable from noise (DSR 0.013, RC p = 0.679). See D7.
 * **New committed artefact:** `logs/frozen_vol_thresholds.json`, the volatility cut points computed from development data only and reused unchanged on the holdout.
 * **Trials registry:** 98 entries (96 grid cells + 2 hypotheses).
+
+## Stage 8 (final report and the holdout run): done
+
+* Conclusion rules and procedure committed first (D8, commit 036363b); the pipeline was dry-run on development data only; the real holdout was read once (lock file `logs/holdout_final_run.json`), then re-derived once with `--reproduce` for verification.
+* Result: holdout +0.076 R (interval +0.008 to +0.145); verdict under D8 **"No edge established"** because condition (c) (development must not contradict) failed. See D9 and `docs/final/FINAL_REPORT.md`.
+* A wording correction to the generated plain-English conclusion was made after the result and is disclosed in the report and in D9.

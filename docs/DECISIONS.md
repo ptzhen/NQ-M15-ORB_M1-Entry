@@ -179,3 +179,21 @@ before the real run.
 3. Hypothesis D3 is *supported on the holdout* if the high-tercile interval lies entirely above 0 (>= 20 trades required, else "untestable"). Hypothesis D5 is *supported* if the permutation p-value is below 0.05.
    Three declared tests are run, so a Bonferroni-adjusted level of 0.05/3 is also shown; the rules above are not relaxed or tightened by it.
 4. The report states the outcome of all three tests, including every failure, and does not drop or reorder them.
+
+## D9 (2026-10-06): the holdout result, the verdict under D8, and one disclosed wording correction
+
+**Run.** `python -m orb final`, once, at 2026-10-06 15:11 UTC on code commit 036363b (the commit that contains D8 and the dry-run-validated pipeline). A reproduction run
+(`--reproduce`) re-derived every key number exactly. Development trades were verified unchanged by loading the holdout alongside them.
+
+**Result (primary specification, 1x costs, 665 holdout trades, 2024-01-02 to 2026-10-01).** Expectancy +0.076 R, 95% block-bootstrap interval +0.008 to +0.145; +$90,265 for one NQ.
+At 2x costs +0.067 R (interval -0.002 to +0.133). Test (ii), high-volatility tercile: 240 trades, +0.036 R (interval -0.059 to +0.133), NOT supported. Test (iii), direction permutation: p = 0.126, NOT supported.
+
+**Verdict by the D8 rules: "No edge established".** Rule 1: the primary result is *positive and distinguishable*. Rule 2: conditions (a) and (b) hold, but (c) fails (the development interval at 1x costs, -0.083 to -0.019, lies entirely below zero),
+so the overall conclusion is "no edge established". The rules were not changed after seeing the result.
+
+**Disclosure.** The report's conclusion text is generated from templates written before the holdout was opened. The template for the "no edge established" case assumed a non-positive holdout, and its plain-English sentence ("no reason to
+expect to make money after costs") was inaccurate for a positive-but-rule-failing holdout. After seeing the result I replaced the sentence with an accurate "the evidence is mixed" description and added context bullets (strength of the interval,
+the direction test, long/short split, the reversal versus development), all computed from the numbers. The verdict, the rules and every number are unchanged; the report states this itself (section 9).
+
+**Consequences.** The holdout is now spent: it must not be used to tune, select or re-test anything. The explanation for why 2021 onward looks different from 2010-2018 is open. Any follow-up idea
+needs genuinely new data (the history after 2026-10-01 as it arrives) or another instrument, with its own pre-registration. Nothing in this project is a recommendation to trade.

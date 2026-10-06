@@ -162,6 +162,28 @@ def render_final(cfg, res: dict, out_dir, mode: str) -> str:
     else:
         headline = "**No edge established.**"
         verdict_text = "The pre-declared conditions for claiming an edge were not all met. Failed: " + "; ".join(vd["failed"]) + "."
+    mixed = vd["primary"] == "positive and distinguishable" and not vd["edge"]
+    sh, pf, c2 = s_ho["sharpe"], s_ho["profit_factor"], ho.cost_stats[2.0]
+    ho_t = ho.trades[1.0]
+    side_ho = {sd: ho_t.loc[ho_t["side"] == sd, "r_multiple"].mean() for sd in ("long", "short")}
+    p1 = 1.0 - s_ho["p_expectancy_positive"]
+    ctx = []
+    if mixed:
+        ctx.append(f"* **How strong is the holdout gain?** Its interval is {e_ho[1]:+.3f} to {e_ho[2]:+.3f} R, so the lower end is only {e_ho[1]:+.3f} R: the result clears zero narrowly. The one-sided bootstrap p-value is about {p1:.3f} "
+                   f"({'below' if p1 < 0.05 / 3 else 'not below'} the Bonferroni level of {0.05 / 3:.4f} for three declared tests). The Sharpe interval is {sh[1]:+.2f} to {sh[2]:+.2f} and the profit-factor interval {pf[1]:.2f} to {pf[2]:.2f}"
+                   f"{' (both include the no-edge values)' if sh[1] <= 0 and pf[1] <= 1 else ''}; at 2x costs the expectancy interval is {c2['lo']:+.3f} to {c2['hi']:+.3f} R.")
+        ctx.append(f"* **Is it the breakout, or the market?** The direction test did not support breakout information (p = {dirn['p_value']:.3f}); over the same entry-to-close windows the market itself moved {dirn['always_long_mean_bps']:+.2f} bps. "
+                   f"In the holdout the long trades averaged {side_ho['long']:+.3f} R and the short trades {side_ho['short']:+.3f} R. A gain that comes mainly from the long side while NQ is rising is what market drift would also produce.")
+        ctx.append(f"* **It reverses the earlier history.** Development was {e_dev[0]:+.3f} R per trade (interval {e_dev[1]:+.3f} to {e_dev[2]:+.3f}); the holdout is {e_ho[0]:+.3f} R. The rule's performance clearly is not stable over time, and the one regime explanation "
+                   f"we tested in advance (prior volatility) does not account for it (test (ii) in section 4).")
+    ctx_text = "\n".join(ctx)
+    if vd["edge"]:
+        plain = "the evidence favours a small positive expectancy, but it should be confirmed on fresh data before any money depends on it."
+    elif mixed:
+        plain = ("the evidence is **mixed**. For 13.5 years this rule lost money after costs; the later, untouched data show a gain that is statistically positive but only just, that is not shown to come from the breakout "
+                 "itself, and that contradicts the earlier history. By the rules we set in advance that is **not** enough to call it an edge. It is a reason to keep observing the rule on genuinely new data, not a reason to expect profits.")
+    else:
+        plain = "a trader following this rule would, on this evidence, have no reason to expect to make money after costs."
     conclusion = f"""{headline}
 
 * **What was tested.** The textbook 15-minute opening range breakout on NQ: after the first 15 minutes of the US session, go long (short) when a 1-minute bar closes above (below) the range, stop at the other side of the range, target 1x the risk, flat by 15:55, one trade a day.
@@ -170,8 +192,9 @@ def render_final(cfg, res: dict, out_dir, mode: str) -> str:
 * **{'Pseudo-holdout' if dry else 'Holdout'}, {_span(ho)} ({s_ho['trades']:,} trades).** On {'data inside the development period (dry run)' if dry else 'data that no decision had ever seen'}, {ho_word}: {e_ho[0]:+.3f} R per trade (95% interval {e_ho[1]:+.3f} to {e_ho[2]:+.3f}), {s_ho['total_usd_nq']:+,.0f} dollars for one NQ. At 2x costs: {ho.cost_stats[2.0]['mean_r']:+.3f} R.
 * **Two ideas formed along the way** (it works better in high-volatility regimes; the breakout direction carries information beyond market drift) were each tested once on the holdout: volatility {'supported' if vol['supported'] else ('untestable' if not vol['testable'] else 'not supported')}, direction {'supported' if dirn['supported'] else 'not supported'}.
 * {verdict_text}
+{ctx_text}
 
-**In plain English:** {"a trader following this rule would, on this evidence, have no reason to expect to make money after costs." if not vd["edge"] else "the evidence favours a small positive expectancy, but it should be confirmed on fresh data before any money depends on it."} This is a statement about this specific rule on this data, not proof that no breakout strategy can work, and it is not investment advice.
+**In plain English:** {plain} This is a statement about this specific rule on this data, not proof that no breakout strategy can work, and it is not investment advice.
 """
 
     partial_years = [str(int(r_['year'])) for _, r_ in ys.iterrows() if r_['partial']]
@@ -243,11 +266,19 @@ Holdout (partial years marked *):
 * **Excluded days** (holidays, half-days, roll days, vendor-degraded or incomplete days) are a deliberate sample restriction.
 * **Other designs.** Different ranges, filters, instruments or exits were only tested within the pre-declared grid.
 
-## 9. Reproducing this and the audit trail
+## 9. Disclosure: one wording correction made after the result was known
+
+The conclusion text is generated from templates written before the holdout was opened. The template for "the rules say no edge" assumed the holdout would not be positive, so its plain-English sentence ("no reason to expect to make money")
+was wrong for what actually happened, and it was corrected after the result was seen (see `docs/DECISIONS.md`, D9). **The verdict ("No edge established"), the rules, and every number are unchanged**; only the explanatory wording
+and the added context bullets in section 1 were changed.
+
+## 10. Reproducing this and the audit trail
 
 * One command: `python -m orb run` rebuilds every stage from the raw file (with `ORB_UNLOCK_HOLDOUT=yes` it also re-derives this final report, in reproduction mode). `python -m pytest` runs the tests.
 * Trials registered for the multiple-testing correction: **{count_trials(cfg)}** (`logs/trials.jsonl`). Decision log: `docs/DECISIONS.md` (D1-D8). Frozen volatility thresholds: `logs/frozen_vol_thresholds.json`.
-* Holdout access log (`logs/holdout_access.log`) has {len(audit_lines)} entr{'y' if len(audit_lines) == 1 else 'ies'}{': ' + '; '.join(l.split(chr(9))[1] + ' (' + l.split(chr(9))[3][:40] + ')' for l in audit_lines) if audit_lines else ''}.
+* Holdout access log (`logs/holdout_access.log`) has {len(audit_lines)} entr{'y' if len(audit_lines) == 1 else 'ies'}:
+
+{chr(10).join('  * ' + l.split(chr(9))[0] + ' - ' + l.split(chr(9))[1] + ' - ' + l.split(chr(9))[3] for l in audit_lines)}
 """
     path = out_dir / "FINAL_REPORT.md"
     path.write_text(md, encoding="utf-8")

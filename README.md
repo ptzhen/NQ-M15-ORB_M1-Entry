@@ -4,8 +4,12 @@ This project tests one simple trading idea as rigorously as possible, with the e
 whether there is a genuine edge, **not** of producing a nice-looking equity curve. A good-looking result
 is treated as suspicious until it survives the tests below.
 
-> **Status: Stage 7 of 8 (robustness and multiple-testing) is complete.** Results so far are development-data only (2010-2023); the 2024+ holdout has not been touched.
-> See [`docs/PLAN.md`](docs/PLAN.md) for the plan, [`docs/DECISIONS.md`](docs/DECISIONS.md) for the owner's decisions (incl. *proceed even if results are bad*), and the stage reports: [data](docs/stage2_data_quality/data_quality_report.md), [signals](docs/stage3_signals/signal_summary.md), [execution and costs](docs/stage4_execution/execution_report.md), [backtest](docs/stage5_backtest/backtest_report.md), [validation](docs/stage6_validation/validation_report.md), [robustness](docs/stage7_robustness/robustness_report.md).
+> **Status: all 8 stages are complete.** Read the final write-up: [`docs/final/FINAL_REPORT.md`](docs/final/FINAL_REPORT.md).
+>
+> **Conclusion (by the rules fixed before the holdout was opened): no edge established.** Over 2010-2023 the rule lost about 0.05 R per trade after costs (95% interval -0.083 to -0.019 R) and none of 96 variants survived the multiple-testing
+> correction. On the untouched 2024-2026 holdout it gained about +0.08 R per trade (interval +0.008 to +0.145), which clears zero narrowly but is not shown to come from the breakout itself and contradicts the 13.5-year history, so the evidence is *mixed*, not an edge.
+> Stage reports: [data](docs/stage2_data_quality/data_quality_report.md), [signals](docs/stage3_signals/signal_summary.md), [execution and costs](docs/stage4_execution/execution_report.md), [backtest](docs/stage5_backtest/backtest_report.md),
+> [validation](docs/stage6_validation/validation_report.md), [robustness](docs/stage7_robustness/robustness_report.md). Plan: [`docs/PLAN.md`](docs/PLAN.md). Owner decisions and pre-registrations: [`docs/DECISIONS.md`](docs/DECISIONS.md).
 
 ## The idea in plain English
 
@@ -48,7 +52,9 @@ python -m orb execution # simulate fills and costs on development data, write th
 python -m orb backtest  # full backtest on development data: trade log + breakdowns by year/regime/weekday/side
 python -m orb validation # 96-cell parameter grid, in/out-of-sample split and walk-forward (protocol fixed in docs/DECISIONS.md D4)
 python -m orb robustness # bootstrap, Monte Carlo, volatility-regime and direction tests, deflated Sharpe, reality check (docs/DECISIONS.md D6)
-python -m orb run       # every implemented stage in order
+python -m orb final --dry-run # final pipeline on development data only (pseudo-holdout); safe
+ORB_UNLOCK_HOLDOUT=yes python -m orb final --reproduce   # re-derive the (already completed) final run for verification; logged
+python -m orb run       # every stage in order; the final stage is re-derived only if ORB_UNLOCK_HOLDOUT=yes
 python -m pytest        # unit tests
 ```
 
@@ -98,6 +104,13 @@ Output lands in `outputs/` (git-ignored). The Stage 2 report is also published i
 * The **forest plot** shows every slice with its interval; a slice whose bar crosses the vertical zero line says nothing either way.
 * **Deflated Sharpe and the Reality Check** answer: "if I had tried this many variants of a strategy with no edge, how good would the best look by luck alone?" A result only counts as distinguishable from noise if it beats that bar.
 * Two ideas formed *after* seeing earlier results (volatility regime, and "is it just drift?") were pre-registered and tested here; they did not hold up on development data and will each get exactly one holdout test.
+
+## How to read the final report
+
+* **Section 1** is the answer in plain English, produced mechanically from rules committed *before* the holdout was opened (`docs/DECISIONS.md`, D8). "No edge established" means at least one of three pre-declared conditions failed; the report says which.
+* **Section 3** puts the development period and the untouched holdout side by side, every statistic with a 95% interval. **Section 4** lists the three tests declared in advance and their outcome, including failures.
+* **Section 9** discloses the one wording correction made after the holdout result was known. The verdict and all numbers were unchanged by it.
+* The holdout is **spent**: it has been read once for the decision (plus once to verify reproducibility; both logged in `logs/holdout_access.log`). Do not use it to tune anything.
 
 ## Repository layout
 

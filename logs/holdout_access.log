@@ -2,3 +2,7 @@
 # Format (tab separated): UTC timestamp, dataset, partition, stated purpose.
 # Expected final state: one pair of entries (daily, bars_chosen) from the single Stage 8 run, plus entries labelled
 # 'reproduction' if the final stage is re-derived for verification. Anything else is a protocol breach.
+2026-10-06T15:11:15+00:00	daily	all	stage 8 FINAL holdout run (D8), the one and only decision run
+2026-10-06T15:11:16+00:00	bars_chosen	all	stage 8 FINAL holdout run (D8), the one and only decision run
+2026-10-06T15:14:00+00:00	daily	all	stage 8 reproduction of the final run (verification only, no decisions)
+2026-10-06T15:14:01+00:00	bars_chosen	all	stage 8 reproduction of the final run (verification only, no decisions)

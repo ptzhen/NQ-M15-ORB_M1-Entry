@@ -1,0 +1,18 @@
+{
+  "completed_utc": "2026-10-06T15:11:40+00:00",
+  "code_commit": "036363bc2ed7f0f2bd770fb824d352c374e96442",
+  "note": "The one and only decision run on the holdout (D8). Further runs must use --reproduce.",
+  "summary": {
+    "holdout_trades": 665,
+    "holdout_expectancy_r": 0.076315,
+    "holdout_expectancy_interval": [
+      0.007575,
+      0.14456
+    ],
+    "holdout_total_usd_nq": 90265.0,
+    "direction_p": 0.125794,
+    "high_vol_trades": 240,
+    "verdict_primary": "positive and distinguishable",
+    "edge_established": false
+  }
+}
