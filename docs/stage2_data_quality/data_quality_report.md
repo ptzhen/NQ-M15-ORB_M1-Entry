@@ -13,7 +13,7 @@ code only receives data through the guarded loaders in `orb/data/splits.py`.
 | Rows in file | 14,566,859 |
 | NQ outrights kept | 6,785,197 |
 | NQ calendar spreads dropped | 546,935 |
-| Other products dropped (MGCG, MGCJ, MGCM, MGCQ, MGCV, MGCZ) | 7,234,727 |
+| Other products dropped (MGC) | 7,234,727 |
 | First / last bar (UTC) | 2010-06-06 22:00:00 / 2026-10-01 23:59:00 |
 | Instruments (contracts) | 71 |
 | Session content | Full Globex session (~23h), 17:00-18:00 ET maintenance break; analysis uses 09:30-16:00 ET only |

@@ -24,6 +24,11 @@ import pandas as pd
 from orb.config import resolve
 
 
+# Bump when the cached content (filtering, statistics labels) changes. The cache is keyed on the raw file's hash AND this
+# version, so code changes can never be hidden behind stale cached statistics.
+CACHE_VERSION = 2
+
+
 def sha256_file(path: Path, chunk: int = 1 << 20) -> str:
     h = hashlib.sha256()
     with open(path, "rb") as fh:
@@ -71,7 +76,7 @@ def load_raw_nq(cfg, use_cache: bool = True) -> tuple[pd.DataFrame, dict]:
     cache_pq, cache_meta = interim / "nq_outrights.parquet", interim / "nq_outrights.meta.json"
     if use_cache and cache_pq.exists() and cache_meta.exists():
         meta = json.loads(cache_meta.read_text())
-        if meta.get("sha256") == digest:
+        if meta.get("sha256") == digest and meta.get("version") == CACHE_VERSION:
             return pd.read_parquet(cache_pq), meta["stats"]
 
     import databento as db  # imported lazily: heavy, and unneeded when the cache hits
@@ -101,7 +106,7 @@ def load_raw_nq(cfg, use_cache: bool = True) -> tuple[pd.DataFrame, dict]:
     bars["volume"] = bars["volume"].astype("int64")
     bars["instrument_id"] = bars["instrument_id"].astype("int64")
     bars.to_parquet(cache_pq)
-    cache_meta.write_text(json.dumps({"sha256": digest, "stats": stats}, indent=2))
+    cache_meta.write_text(json.dumps({"sha256": digest, "version": CACHE_VERSION, "stats": stats}, indent=2))
     return bars, stats
 
 

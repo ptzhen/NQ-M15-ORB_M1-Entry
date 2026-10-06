@@ -112,6 +112,12 @@ Output lands in `outputs/` (git-ignored). The Stage 2 report is also published i
 * **Section 9** discloses the one wording correction made after the holdout result was known. The verdict and all numbers were unchanged by it.
 * The holdout is **spent**: it has been read once for the decision (plus once to verify reproducibility; both logged in `logs/holdout_access.log`). Do not use it to tune anything.
 
+## Reproducibility check
+
+The whole pipeline was re-run from a completely fresh clone of this repository (only the licensed raw data copied in) with `ORB_UNLOCK_HOLDOUT=yes python -m orb run`: it finishes in about 3.5 minutes, the final stage reports every key number
+identical to the original holdout run, and the tracked outputs are identical to the published ones apart from counters that depend on when a report is generated (the number of trials registered so far, the number of holdout-log entries).
+That check also found a stale-cache bug (a corrected label was hidden behind cached statistics); the cache is now keyed on a code version as well as the file hash.
+
 ## Repository layout
 
 ```
