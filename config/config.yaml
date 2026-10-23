@@ -117,6 +117,16 @@ robustness:
     # development partition (never from the holdout); the numbers are printed in the report.
     quantiles: [0.3333333333, 0.6666666667]
 
+indicators:
+  # Defaults for the VWAP indicator (TradingView "Volume-weighted average price"); the CLI can override each one.
+  vwap:
+    anchor: Session              # Session | Week | Month | Quarter | Year | Decade | Century
+    source: hlc3                 # hlc3 | close | open | high | low | hl2 | ohlc4 | hlcc4
+    band_mode: Standard Deviation   # "Standard Deviation" | "Percentage" (1 = 1% of VWAP)
+    bands: {1: 1.0}              # band number -> multiplier; TradingView default shows only band 1. Use {1: 1.0, 2: 2.0, 3: 3.0} for all three
+    offset: 0                    # shift the plotted lines by this many bars
+    session_reset: "18:00"       # ET time a new CME trading session starts (identical to a daily reset on RTH-only data)
+
 splits:
   # Develop and tune on dates <= dev_end only. The holdout is touched exactly once, at the end.
   dev_end: 2023-12-31

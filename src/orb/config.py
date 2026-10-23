@@ -17,6 +17,8 @@ DEFAULT_CONFIG = Path(__file__).resolve().parents[2] / "config" / "config.yaml"
 
 def _to_ns(obj):
     if isinstance(obj, dict):
+        if not all(isinstance(k, str) for k in obj):      # e.g. {1: 1.0, 2: 2.0}: keys are data, not attribute names
+            return {k: _to_ns(v) for k, v in obj.items()}
         return SimpleNamespace(**{k: _to_ns(v) for k, v in obj.items()})
     return obj
 

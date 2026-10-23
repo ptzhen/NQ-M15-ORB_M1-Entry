@@ -118,6 +118,23 @@ The whole pipeline was re-run from a completely fresh clone of this repository (
 identical to the original holdout run, and the tracked outputs are identical to the published ones apart from counters that depend on when a report is generated (the number of trials registered so far, the number of holdout-log entries).
 That check also found a stale-cache bug (a corrected label was hidden behind cached statistics); the cache is now keyed on a code version as well as the file hash.
 
+## VWAP indicator (TradingView-style)
+
+`orb.indicators.vwap.vwap(bars, ...)` reproduces TradingView's built-in *Volume-weighted average price*: cumulative volume-weighted average of the source
+(default `hlc3`), reset on the chosen anchor (`Session`, `Week`, `Month`, `Quarter`, `Year`, `Decade`, `Century`), with up to three bands at a multiplier of the
+volume-weighted standard deviation or of a percentage of VWAP, plus the `offset` option. Defaults live in `config/config.yaml` under `indicators.vwap`.
+
+```bash
+python -m orb vwap --date 2023-06-05 --bands 1,2,3            # session VWAP with all three standard-deviation bands
+python -m orb vwap --date 2023-06-09 --days 5 --anchor Week   # a weekly VWAP across five sessions
+python -m orb vwap --date 2023-06-05 --mode Percentage --bands 0.5,1
+```
+
+Differences from TradingView, on purpose: `Session` resets at the CME session start (18:00 New York time, keyed to the trade date, so Sunday evening belongs to Monday); VWAP also resets when the
+contract changes; the Earnings/Dividends/Splits anchors raise an error (futures have no such data). The variance is computed on prices centred on each period's first value, because the textbook
+`E[s^2] - mean^2` formula loses precision at NQ price levels. It uses only past bars (tested), and the chart command reads development-period dates only and refuses holdout dates.
+**The indicator is not part of the tested strategy.** Using it as a signal or filter would be a new strategy variant and needs new data plus a fresh pre-registration (`docs/DECISIONS.md`, D10).
+
 ## Repository layout
 
 ```
@@ -127,6 +144,7 @@ src/orb/signals/       the opening-range breakout signal engine (vectorised + ev
 src/orb/execution/     fills, stops, targets, commission and slippage (vectorised + bar-by-bar twin)
 src/orb/analysis/      metrics and the trials registry (grows in Stages 5-7)
 logs/trials.jsonl      every strategy variant evaluated (for the multiple-testing correction)
+src/orb/indicators/    VWAP indicator (TradingView-style)
 src/orb/reports/       report and chart generation
 tests/                 unit tests
 logs/holdout_access.log  audit trail of every access to the 2024+ holdout

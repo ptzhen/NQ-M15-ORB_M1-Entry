@@ -197,3 +197,12 @@ the direction test, long/short split, the reversal versus development), all comp
 
 **Consequences.** The holdout is now spent: it must not be used to tune, select or re-test anything. The explanation for why 2021 onward looks different from 2010-2018 is open. Any follow-up idea
 needs genuinely new data (the history after 2026-10-01 as it arrives) or another instrument, with its own pre-registration. Nothing in this project is a recommendation to trade.
+
+## D10 (2026-10-23): a VWAP indicator was added to the repository; it is not part of the tested strategy
+
+The owner asked for a TradingView-style VWAP indicator. It was added as a library module (`orb.indicators.vwap`) with a chart command, tests against hand-computed values, every anchor boundary, an
+independent bar-by-bar reference and a no-lookahead check, and 10 injected bugs caught. **It does not alter the primary specification, the grid, or any reported result**, and nothing in
+Stages 2-8 uses it. The 2024+ holdout is spent (D9), so the chart command is restricted to development dates.
+
+**If VWAP (or its bands) is ever used as a signal, filter or exit,** that is a new strategy variant: it needs genuinely new data (after 2026-10-01 or another instrument), a protocol written and committed before it is run,
+registration in `logs/trials.jsonl`, and the same multiple-testing treatment as everything else. It may not be evaluated on the spent holdout to decide anything.

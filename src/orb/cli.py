@@ -54,6 +54,19 @@ def cmd_robustness(cfg, use_cache: bool) -> None:
     print(f"report: {build_robustness_report(cfg)}")
 
 
+def cmd_vwap(cfg, args) -> None:
+    """TradingView-style VWAP chart for development-period dates. Defaults come from config ``indicators.vwap``."""
+    from orb.reports.vwap_chart import build_vwap_chart
+
+    bands = None
+    if args.bands:
+        bands = {i + 1: float(x) for i, x in enumerate(args.bands.split(","))}
+    path, table = build_vwap_chart(cfg, date=args.date, days=args.days, anchor=args.anchor, band_mode=args.mode, bands=bands,
+                                   source=args.source, offset=args.offset, out=args.out)
+    print(f"chart: {path}")
+    print(table.tail(3).to_string(index=False, float_format=lambda v: f"{v:,.2f}"))
+
+
 def cmd_final(cfg, use_cache: bool, args=None) -> None:
     """Stage 8. The ONE place the holdout is read for a decision (D8). Guarded three ways: the explicit unlock environment variable,
     the access log, and a lock file that makes a second run a refusal unless ``--reproduce`` is given."""
@@ -127,15 +140,26 @@ def resolve_lock_exists(cfg) -> bool:
 
 def main(argv: list[str] | None = None) -> None:
     p = argparse.ArgumentParser(prog="orb", description=__doc__)
-    p.add_argument("command", choices=[*STAGES, "final", "run"])
+    p.add_argument("command", choices=[*STAGES, "final", "vwap", "run"])
     p.add_argument("--config", default=None, help="path to config YAML (default: config/config.yaml)")
     p.add_argument("--no-cache", action="store_true", help="re-parse the raw file instead of using the interim cache")
     p.add_argument("--dry-run", action="store_true", help="final: run the pipeline on development data only (pseudo-holdout), never touching the holdout")
     p.add_argument("--reproduce", action="store_true", help="final: re-derive the already-completed final run for verification (logged; no decisions)")
+    p.add_argument("--date", default=None, help="vwap: last trading date to show (development period only; default: last development date)")
+    p.add_argument("--days", type=int, default=1, help="vwap: number of trading dates to show, ending at --date")
+    p.add_argument("--anchor", default=None, help="vwap: Session | Week | Month | Quarter | Year | Decade | Century")
+    p.add_argument("--mode", default=None, help='vwap: "Standard Deviation" or "Percentage"')
+    p.add_argument("--bands", default=None, help="vwap: comma-separated multipliers for bands 1,2,3 (e.g. 1,2,3)")
+    p.add_argument("--source", default=None, help="vwap: hlc3 | close | open | high | low | hl2 | ohlc4 | hlcc4")
+    p.add_argument("--offset", type=int, default=None, help="vwap: shift the plotted lines by this many bars")
+    p.add_argument("--out", default=None, help="vwap: output PNG path (repo-relative)")
     args = p.parse_args(argv)
 
     cfg = load_config(args.config)
     np.random.seed(cfg.seed)  # every stochastic step also takes cfg.seed explicitly
+    if args.command == "vwap":
+        cmd_vwap(cfg, args)
+        return
     names = [*STAGES] if args.command == "run" else [args.command]
     for name in names:
         STAGES[name](cfg, use_cache=not args.no_cache) if name != "final" else cmd_final(cfg, not args.no_cache, args)
